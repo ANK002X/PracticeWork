@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chicago Police Data WDC</title>
-    <script src="https://connectors.tableau.com/libs/tableauwdc-2.4.latest.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="wdc.js"></script>  <!-- Link to the JavaScript file you created -->
+    <title>Chicago Crime Data WDC</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://connectors.tableau.com/libs/tableauwdc-2.3.latest.js"></script>
+    <script src="chicago_crime_wdc.js"></script>
 </head>
 <body>
-    <button onclick="initWDC()">Connect to Data</button>
+    <h1>Chicago Crime Data Web Data Connector</h1>
+    <p>Click the button below to load crime data from the Chicago Police Department.</p>
+    <button onclick="window.initWDC()">Load Crime Data</button>
 </body>
 </html>
