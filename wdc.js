@@ -1,61 +1,95 @@
-// Define the WDC class
-var myConnector = tableau.makeConnector();
+// Define the connector
+tableau.registerConnector({
+    init: function() {
+        console.log('WDC Initialized');
+    },
 
-// Initialization of tableau WDC
-tableau.init = function () {
-    // Define any connection data or settings here
-    tableau.connectionData = "Some connection data";  // Can be used for storing connection-specific data
-    tableau.connectionName = "Example Connection";   // Set a name for the connection
-    tableau.submit();  // Submit the connection
-};
+    // Function to define the schema of the data
+    getSchema: function(schemaCallback) {
+        var cols = [
+            { id: "case_", dataType: tableau.dataTypeEnum.string },
+            { id: "date_of_occurrence", dataType: tableau.dataTypeEnum.datetime },
+            { id: "block", dataType: tableau.dataTypeEnum.string },
+            { id: "iucr", dataType: tableau.dataTypeEnum.string },
+            { id: "primary_description", dataType: tableau.dataTypeEnum.string },
+            { id: "secondary_description", dataType: tableau.dataTypeEnum.string },
+            { id: "location_description", dataType: tableau.dataTypeEnum.string },
+            { id: "arrest", dataType: tableau.dataTypeEnum.string },
+            { id: "domestic", dataType: tableau.dataTypeEnum.string },
+            { id: "beat", dataType: tableau.dataTypeEnum.int },
+            { id: "ward", dataType: tableau.dataTypeEnum.int },
+            { id: "fbi_cd", dataType: tableau.dataTypeEnum.string },
+            { id: "x_coordinate", dataType: tableau.dataTypeEnum.string },
+            { id: "y_coordinate", dataType: tableau.dataTypeEnum.string },
+            { id: "latitude", dataType: tableau.dataTypeEnum.float },
+            { id: "longitude", dataType: tableau.dataTypeEnum.float },
+            { id: "location", dataType: tableau.dataTypeEnum.string }
+        ];
 
-// Define the schema for the data
-myConnector.getSchema = function (callback) {
-    var schema = {
-        id: "example_schema",
-        alias: "Example Data",
-        columns: [
-            { id: "col1", dataType: tableau.dataTypeEnum.string },
-            { id: "col2", dataType: tableau.dataTypeEnum.float }
-        ]
-    };
-    callback([schema]);  // Pass the schema to Tableau
-};
+        var tableSchema = {
+            id: "crime_data",
+            alias: "Chicago Police Department Incident Data",
+            columns: cols
+        };
 
-// Fetch the data for the WDC
-myConnector.getData = function (table, doneCallback) {
-    // Sample data (replace this with your actual data-fetching logic)
-    var data = [
-        { "col1": "Value 1", "col2": 123 },
-        { "col1": "Value 2", "col2": 456 },
-        { "col1": "Value 3", "col2": 789 }
-    ];
+        schemaCallback([tableSchema]);
+    },
 
-    // Add rows to the table (WDC must map the data according to schema)
-    for (var i = 0; i < data.length; i++) {
-        table.appendRow(data[i]);
+    // Function to fetch the data from the API
+    getData: function(table, doneCallback) {
+        var dataUrl = "https://data.cityofchicago.org/resource/x2n5-8w5q.csv";
+
+        // Fetch data from the CSV API endpoint
+        fetch(dataUrl)
+            .then(response => response.text())
+            .then(csvText => {
+                // Parse the CSV to JSON
+                Papa.parse(csvText, {
+                    header: true,
+                    dynamicTyping: true,
+                    complete: function(results) {
+                        var data = results.data;
+                        var tableData = data.map(function(row) {
+                            return {
+                                "case_": row.case_,
+                                "date_of_occurrence": row.date_of_occurrence,
+                                "block": row.block,
+                                "iucr": row.iucr,
+                                "primary_description": row.primary_description,
+                                "secondary_description": row.secondary_description,
+                                "location_description": row.location_description,
+                                "arrest": row.arrest,
+                                "domestic": row.domestic,
+                                "beat": row.beat,
+                                "ward": row.ward,
+                                "fbi_cd": row.fbi_cd,
+                                "x_coordinate": row.x_coordinate,
+                                "y_coordinate": row.y_coordinate,
+                                "latitude": row.latitude,
+                                "longitude": row.longitude,
+                                "location": row.location
+                            };
+                        });
+
+                        // Push data into the Tableau table
+                        table.appendRows(tableData);
+                        doneCallback();
+                    },
+                    error: function(error) {
+                        console.error("Error parsing CSV: ", error.message);
+                        doneCallback();
+                    }
+                });
+            })
+            .catch(function(error) {
+                console.error("Error fetching data: ", error);
+                doneCallback();
+            });
     }
-
-    doneCallback();  // Finished adding data to the table
-};
-
-// Register the WDC with Tableau
-tableau.registerConnector(myConnector);
-
-// Function to handle the connection setup
-function connect() {
-    tableau.connectionName = "Example WDC";
-    tableau.connectionData = "This is a sample data connection";
-    
-    tableau.submit();  // Start the connection to Tableau
-}
-
-// Add event listener to trigger the connection when the button is clicked
-document.getElementById("submitButton").addEventListener('click', function () {
-    connect();
 });
 
-// Handle page initialization
-window.onload = function () {
-    tableau.init();  // Initialize tableau when the page loads
-};
+// Initializing the connector
+function initWDC() {
+    tableau.connectionName = "Chicago Police Data WDC";
+    tableau.submit();
+}
