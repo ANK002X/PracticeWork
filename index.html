@@ -3,13 +3,39 @@
 <head>
     <title>Chicago Crime Data WDC</title>
     <meta http-equiv="Cache-Control" content="no-store" />
+    
+    <!-- Include required libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://connectors.tableau.com/libs/tableauwdc-2.3.latest.js"></script>
-    <script src="chicago_crime_wdc.js"></script>
+    
+    <!-- Custom styles -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <h1>Chicago Crime Data Web Data Connector</h1>
     <p>Click the button below to load crime data from the Chicago Police Department.</p>
-    <button onclick="window.initWDC()">Load Crime Data</button>
+    <button id="submitButton">Load Crime Data</button>
+
+    <!-- Include the connector code last -->
+    <script src="chicago_crime_wdc.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#submitButton").click(function() {
+                tableau.connectionName = "Chicago Crime Data";
+                tableau.submit();
+            });
+        });
+    </script>
 </body>
 </html>
