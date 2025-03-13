@@ -4,11 +4,11 @@
     <title>Chicago Crime Data WDC</title>
     <meta http-equiv="Cache-Control" content="no-store" />
     
-    <!-- Include required libraries -->
+    <!-- Include required libraries in correct order -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://connectors.tableau.com/libs/tableauwdc-2.3.latest.js"></script>
+    <script src="wdc.js"></script>
     
-    <!-- Custom styles -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,15 +23,14 @@
     </style>
 </head>
 <body>
-    <h1>Chicago Crime Data Web Data Connector</h1>
-    <p>Click the button below to load crime data from the Chicago Police Department.</p>
-    <button id="submitButton">Load Crime Data</button>
+    <h1>Chicago Crime Data Connector</h1>
+    <p>Click the button below to fetch crime data from Chicago's Data Portal.</p>
+    <button type="button" id="submitButton">Get Crime Data</button>
 
-    <!-- Include the connector code last -->
-    <script src="wdc.js"></script>
-    <script>
+    <script type="text/javascript">
         $(document).ready(function() {
             $("#submitButton").click(function() {
+                // Set the connection name in the click handler
                 tableau.connectionName = "Chicago Crime Data";
                 tableau.submit();
             });
