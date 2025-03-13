@@ -1,28 +1,21 @@
 (function () {
     'use strict';
 
-    // Wait for tableau to be initialized
     $(document).ready(function () {
-        // Create the connector object
         var myConnector = tableau.makeConnector();
 
-        // Init function for connector
         myConnector.init = function(initCallback) {
             console.log('Initializing WDC');
-            
-            // Set auth type to none
             tableau.authType = tableau.authTypeEnum.none;
 
-            // Report progress for initialization phase
             if (tableau.phase === tableau.phaseEnum.gatherDataPhase) {
                 tableau.reportProgress("Initializing data gathering...");
             }
 
-            // Must call initCallback to tell connector initialization is done
             initCallback();
         };
 
-        // Define the schema
+        // Schema remains the same
         myConnector.getSchema = function(schemaCallback) {
             const cols = [
                 { 
@@ -73,31 +66,36 @@
                     dataType: tableau.dataTypeEnum.bool,
                     description: "Indicates if the incident was domestic"
                 }
-            ];
-
-            const tableSchema = {
-                id: "crimeData",
-                alias: "Chicago Crime Data",
-                columns: cols,
-                description: "Crime data from Chicago Police Department"
-            };
-
-            schemaCallback([tableSchema]);
         };
 
-        // Download the data
+        // Modified getData function with date filtering and smaller page size
         myConnector.getData = function(table, doneCallback) {
-            const dataUrl = "https://data.cityofchicago.org/resource/x2n5-8w5q.json";
-            const pageSize = 1000;
+            // Reduce page size to prevent timeout
+            const pageSize = 500;
             let offset = 0;
             let hasMore = true;
+
+            // Create date filter for last 30 days
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+
+            // Format dates for SODA API
+            const startDateStr = startDate.toISOString().slice(0, 10);
+            const endDateStr = endDate.toISOString().slice(0, 10);
+
+            // Base URL with date filter
+            const baseUrl = "https://data.cityofchicago.org/resource/x2n5-8w5q.json";
+            const dateFilter = `date_of_occurrence between '${startDateStr}' and '${endDateStr}'`;
 
             const processData = async () => {
                 while (hasMore) {
                     try {
                         tableau.reportProgress(`Fetching records ${offset} to ${offset + pageSize}...`);
 
-                        const response = await fetch(`${dataUrl}?$limit=${pageSize}&$offset=${offset}`);
+                        // Add date filter and order by date
+                        const url = `${baseUrl}?$limit=${pageSize}&$offset=${offset}&$where=${encodeURIComponent(dateFilter)}&$order=date_of_occurrence DESC`;
+                        const response = await fetch(url);
                         
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
@@ -124,8 +122,8 @@
                         table.appendRows(tableData);
                         offset += pageSize;
 
-                        // Rate limiting
-                        await new Promise(resolve => setTimeout(resolve, 100));
+                        // Increased delay between requests
+                        await new Promise(resolve => setTimeout(resolve, 250));
 
                     } catch (error) {
                         console.error("Error fetching data:", error);
@@ -141,7 +139,6 @@
             processData();
         };
 
-        // Register the connector
         tableau.registerConnector(myConnector);
     });
 })();
