@@ -4,6 +4,7 @@
     <title>Chicago Crime Data WDC</title>
     <meta http-equiv="Cache-Control" content="no-store" />
     
+    <!-- Include required libraries in correct order -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://connectors.tableau.com/libs/tableauwdc-2.3.latest.js"></script>
     <script src="wdc.js"></script>
@@ -14,13 +15,6 @@
             margin: 20px;
             padding: 20px;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -30,28 +24,13 @@
 </head>
 <body>
     <h1>Chicago Crime Data Connector</h1>
-    <div class="form-group">
-        <label for="startDate">Start Date:</label>
-        <input type="date" id="startDate" required>
-    </div>
-    <div class="form-group">
-        <label for="endDate">End Date:</label>
-        <input type="date" id="endDate" required>
-    </div>
+    <p>Click the button below to fetch crime data from Chicago's Data Portal.</p>
     <button type="button" id="submitButton">Get Crime Data</button>
 
     <script type="text/javascript">
         $(document).ready(function() {
-            // Set default dates
-            const endDate = new Date();
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() - 30);
-            
-            $('#startDate').val(startDate.toISOString().slice(0, 10));
-            $('#endDate').val(endDate.toISOString().slice(0, 10));
-
             $("#submitButton").click(function() {
-                tableau.connectionName = "Chicago Crime Data";
+                // Submit the connector
                 tableau.submit();
             });
         });
