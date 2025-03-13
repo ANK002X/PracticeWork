@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chicago Data WDC</title>
-  <script type="text/javascript" src="wdc.js"></script>
+  <!-- Include Tableau JavaScript API -->
+  <script type="text/javascript" src="https://tableau.github.io/webdataconnector/dist/tableauwdc-2.3.0.min.js"></script>
+  <script src="wdc.js"></script>
 </head>
 <body>
-  <h1>Welcome to the Chicago Data Web Data Connector</h1>
-  <button onclick="tableau.connectionName = 'Chicago Data'; tableau.submit()">Connect to Tableau</button>
+  <h1>Chicago Data Web Data Connector</h1>
+  <button id="connectButton">Connect to Tableau</button>
 </body>
 </html>
