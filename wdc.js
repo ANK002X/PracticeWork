@@ -1,26 +1,39 @@
-(function () {
-  var myConnector = tableau.makeConnector();
+(function() {
+    var myConnector = tableau.makeConnector();
 
-  myConnector.getData = function (request, doneCallback) {
-    console.log("Fetching data...");
-    var apiUrl = 'https://data.cityofchicago.org/resource/x2n5-8w5q.csv?$order=id&$limit=10000&$offset=0';
+    // Define the WDC schema
+    myConnector.getSchema = function(schemaCallback) {
+        var cols = [
+            { id: "column1", dataType: tableau.dataTypeEnum.string },
+            { id: "column2", dataType: tableau.dataTypeEnum.int }
+        ];
 
-    $.get(apiUrl, function (data) {
-      console.log("Data fetched successfully:", data);
-      var tableData = [];
-      data.forEach(function (row) {
-        tableData.push({
-          id: row.id,
-          name: row.name,
-          // Add other fields as necessary
-        });
-      });
-      request.respond(tableData);
-      doneCallback();
-    }).fail(function() {
-      console.log("Error fetching data");
+        var tableSchema = {
+            id: "exampleData",
+            alias: "Example Data",
+            columns: cols
+        };
+
+        schemaCallback([tableSchema]);
+    };
+
+    // Pull the data from an API or any other source
+    myConnector.getData = function(table, doneCallback) {
+        var data = [
+            { "column1": "Value 1", "column2": 100 },
+            { "column1": "Value 2", "column2": 200 }
+        ];
+
+        table.appendRows(data);
+        doneCallback();
+    };
+
+    // Register the connector with Tableau
+    tableau.registerConnector(myConnector);
+
+    // Button click to open the Tableau WDC dialog
+    document.getElementById("connect").addEventListener("click", function() {
+        tableau.connectionName = "My Custom Connector";
+        tableau.submit();
     });
-  };
-
-  tableau.registerConnector(myConnector);
 })();
