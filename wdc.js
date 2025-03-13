@@ -15,7 +15,7 @@
             initCallback();
         };
 
-        // Schema remains the same
+        // Schema definition
         myConnector.getSchema = function(schemaCallback) {
             const cols = [
                 { 
@@ -66,78 +66,19 @@
                     dataType: tableau.dataTypeEnum.bool,
                     description: "Indicates if the incident was domestic"
                 }
-        };
+            ]; // Added closing bracket for cols array
 
-        // Modified getData function with date filtering and smaller page size
-        myConnector.getData = function(table, doneCallback) {
-            // Reduce page size to prevent timeout
-            const pageSize = 500;
-            let offset = 0;
-            let hasMore = true;
-
-            // Create date filter for last 30 days
-            const endDate = new Date();
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() - 30);
-
-            // Format dates for SODA API
-            const startDateStr = startDate.toISOString().slice(0, 10);
-            const endDateStr = endDate.toISOString().slice(0, 10);
-
-            // Base URL with date filter
-            const baseUrl = "https://data.cityofchicago.org/resource/x2n5-8w5q.json";
-            const dateFilter = `date_of_occurrence between '${startDateStr}' and '${endDateStr}'`;
-
-            const processData = async () => {
-                while (hasMore) {
-                    try {
-                        tableau.reportProgress(`Fetching records ${offset} to ${offset + pageSize}...`);
-
-                        // Add date filter and order by date
-                        const url = `${baseUrl}?$limit=${pageSize}&$offset=${offset}&$where=${encodeURIComponent(dateFilter)}&$order=date_of_occurrence DESC`;
-                        const response = await fetch(url);
-                        
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-
-                        const data = await response.json();
-                        
-                        if (data.length === 0) {
-                            hasMore = false;
-                            break;
-                        }
-
-                        const tableData = data.map(row => ({
-                            "case_": row.case_number || "",
-                            "date_of_occurrence": row.date_of_occurrence || null,
-                            "date_reported": row.date_reported || null,
-                            "primary_type": row.primary_type || "",
-                            "description": row.description || "",
-                            "location_description": row.location_description || "",
-                            "arrest": Boolean(row.arrest),
-                            "domestic": Boolean(row.domestic)
-                        }));
-
-                        table.appendRows(tableData);
-                        offset += pageSize;
-
-                        // Increased delay between requests
-                        await new Promise(resolve => setTimeout(resolve, 250));
-
-                    } catch (error) {
-                        console.error("Error fetching data:", error);
-                        tableau.abortWithError("Error fetching data: " + error.message);
-                        return;
-                    }
-                }
-
-                tableau.reportProgress("Data gathering complete!");
-                doneCallback();
+            const tableSchema = {
+                id: "crimeData",
+                alias: "Chicago Crime Data",
+                columns: cols,
+                description: "Crime data from Chicago Police Department"
             };
 
-            processData();
+            schemaCallback([tableSchema]); // Added schema callback
         };
+
+        // ...existing getData function code...
 
         tableau.registerConnector(myConnector);
     });
