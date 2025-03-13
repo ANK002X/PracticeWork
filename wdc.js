@@ -157,7 +157,7 @@
             processData();
         };
 
-        // Register the connector
+        // Register the connecto
         tableau.registerConnector(myConnector);
     });
 })();
