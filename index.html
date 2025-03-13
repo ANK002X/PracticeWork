@@ -1,18 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau WDC Example</title>
-    <!-- Load Tableau WDC library -->
-    <script src="https://connectors.tableau.com/libs/tableauwdc-2.4.latest.js"></script>
+    <title>Chicago Police Data WDC</title>
+    <script src="https://tableau-webdataconnector.tableau.com/libs/tableauwdc-2.3.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="wdc.js"></script>  <!-- Link to the JavaScript file you created -->
 </head>
 <body>
-    <h1>Welcome to Tableau Web Data Connector</h1>
-
-    <!-- Button to launch the Tableau WDC -->
-    <button id="connect">Connect to Data</button>
-
-    <script src="wdc.js"></script>
+    <button onclick="initWDC()">Connect to Data</button>
 </body>
 </html>
