@@ -129,22 +129,26 @@
                             break;
                         }
 
-                        const tableData = data.map(row => ({
-                            "case_": row.case_number || "",
-                            "date_of_occurrence": row.date_of_occurrence || null,
-                            "date_reported": row.date_reported || null,
-                            "primary_type": row.primary_type || "",
-                            "description": row.description || "",
-                            "location_description": row.location_description || "",
-                            "arrest": Boolean(row.arrest),
-                            "domestic": Boolean(row.domestic)
-                        }));
+                    const tableData = data.map(row => ({
+                        "case_": row.id || "",  // Changed from case_number to id
+                        "date_of_occurrence": row.date || null,  // Changed from date_of_occurrence to date
+                        "date_reported": row.date || null,  // Using same date as occurrence for now
+                        "primary_type": row.primary_type || "",
+                        "description": row.description || "",
+                        "location_description": row.location || "",  // Changed from location_description to location
+                        "arrest": row.arrest === true,  // Changed comparison
+                        "domestic": row.domestic === true  // Changed comparison
+                    }));
+    
+                    // Add debug logging
+                    console.log("Sample row data:", data[0]);
+                    console.log("Sample transformed row:", tableData[0]);
+    
+                    table.appendRows(tableData);
+                    offset += pageSize;
+    
+                    await new Promise(resolve => setTimeout(resolve, 250));
 
-                        table.appendRows(tableData);
-                        offset += pageSize;
-
-                        await new Promise(resolve => setTimeout(resolve, 250));
-                    }
 
                     tableau.reportProgress("Data gathering complete!");
                     doneCallback();
